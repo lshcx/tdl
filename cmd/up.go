@@ -35,6 +35,10 @@ func NewUpload() *cobra.Command {
 	cmd.Flags().StringSliceVarP(&opts.Excludes, "excludes", "e", []string{}, "exclude the specified file extensions")
 	cmd.Flags().BoolVar(&opts.Remove, "rm", false, "remove the uploaded files after uploading")
 	cmd.Flags().BoolVar(&opts.Photo, "photo", false, "upload the image as a photo instead of a file")
+	cmd.Flags().BoolVar(&opts.AsAlbum, "as-album", false, "upload as an album")
+	cmd.Flags().IntVar(&opts.MaxAlbumSize, "max-album-size", 10, "max album size, only works when --as-album is true")
+	cmd.Flags().StringVar(&opts.CaptionHeader, "caption", "", "custom caption header")
+	cmd.Flags().IntVar(&opts.MaxFileSize, "max-file-size", 2, "max file size(GB), if the file size is greater than this value, it will be split into multiple files")
 
 	// completion and validation
 	_ = cmd.MarkFlagRequired(path)

@@ -22,17 +22,27 @@ import (
 )
 
 type Options struct {
-	Chat     string
-	Paths    []string
-	Excludes []string
-	Remove   bool
-	Photo    bool
+	Chat          string
+	Paths         []string
+	Excludes      []string
+	Remove        bool
+	Photo         bool
+	AsAlbum       bool
+	MaxAlbumSize  int
+	MaxFileSize   int // GB
+	CaptionHeader string
 }
 
 func Run(ctx context.Context, c *telegram.Client, kvd storage.Storage, opts Options) (rerr error) {
-	files, err := walk(opts.Paths, opts.Excludes)
+	files, err := walk(ctx, opts.Paths, opts.Excludes)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "walk")
+	}
+
+	files = filterFileSize(ctx, files, opts.MaxFileSize, opts.Remove)
+
+	if err := handleCaption(files, opts.AsAlbum, opts.CaptionHeader); err != nil {
+		return errors.Wrap(err, "handle caption")
 	}
 
 	color.Blue("Files count: %d", len(files))
@@ -54,10 +64,13 @@ func Run(ctx context.Context, c *telegram.Client, kvd storage.Storage, opts Opti
 	prog.EnablePS(ctx, upProgress)
 
 	options := uploader.Options{
-		Client:   pool.Default(ctx),
-		Threads:  viper.GetInt(consts.FlagThreads),
-		Iter:     newIter(files, to, opts.Photo, opts.Remove, viper.GetDuration(consts.FlagDelay)),
-		Progress: newProgress(upProgress),
+		Client:       pool.Default(ctx),
+		Threads:      viper.GetInt(consts.FlagThreads),
+		Limit:        viper.GetInt(consts.FlagLimit),
+		Iter:         newIter(files, to, opts.Photo, opts.Remove, viper.GetDuration(consts.FlagDelay)),
+		Progress:     newProgress(upProgress),
+		AsAlbum:      opts.AsAlbum,
+		MaxAlbumSize: opts.MaxAlbumSize,
 	}
 
 	up := uploader.New(options)
@@ -65,7 +78,7 @@ func Run(ctx context.Context, c *telegram.Client, kvd storage.Storage, opts Opti
 	go upProgress.Render()
 	defer prog.Wait(ctx, upProgress)
 
-	return up.Upload(ctx, viper.GetInt(consts.FlagLimit))
+	return up.Upload(ctx)
 }
 
 func resolveDestPeer(ctx context.Context, manager *peers.Manager, chat string) (peers.Peer, error) {

@@ -6,5 +6,6 @@ var (
 	LogPath            string
 	ExtensionsPath     string
 	ExtensionsDataPath string
+	FFmpegPath         string
 	UploadThumbExt     = ".thumb"
 )

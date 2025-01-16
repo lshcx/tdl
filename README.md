@@ -4,6 +4,12 @@
 
 > 📥 Telegram Downloader, but more than a downloader
 
+#### A fork for myself to use :
+- using ffmpeg to get video info and split video
+- add `-as-album` and `-max-album-size` flags to upload as album
+- add `-max-file-size` flag to auto split video file if it is greater than the value, default is 2GB
+- add `-caption` flag to add custom caption header
+
 English | <a href="README_zh.md">简体中文</a>
 
 <p>

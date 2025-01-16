@@ -24,4 +24,10 @@ type Elem interface {
 	Thumb() (File, bool)
 	To() tg.InputPeerClass
 	AsPhoto() bool
+	Mime() string
+	Duration() float64
+	Width() int
+	Height() int
+	Codec() string
+	Caption() string
 }

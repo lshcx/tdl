@@ -16,6 +16,7 @@ func init() {
 	LogPath = filepath.Join(DataDir, "log")
 	ExtensionsPath = filepath.Join(DataDir, "extensions")
 	ExtensionsDataPath = filepath.Join(ExtensionsPath, "data")
+	FFmpegPath = "ffmpeg"
 
 	for _, p := range []string{DataDir, ExtensionsPath, ExtensionsDataPath} {
 		if err = os.MkdirAll(p, 0o755); err != nil {

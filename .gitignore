@@ -6,3 +6,8 @@ downloads
 *.exe
 tdl
 .hugo_build.lock
+
+.github/workflows/docker.yml
+.github/workflows/dependabot-fix.yml
+.github/workflows/master.yml
+.github/workflows/docs.yml
