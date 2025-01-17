@@ -18,16 +18,16 @@ import (
 	"go.uber.org/zap"
 	"golang.org/x/net/proxy"
 
-	"github.com/iyear/tdl/core/logctx"
-	"github.com/iyear/tdl/core/storage"
-	tclientcore "github.com/iyear/tdl/core/tclient"
-	"github.com/iyear/tdl/core/util/fsutil"
-	"github.com/iyear/tdl/core/util/logutil"
-	"github.com/iyear/tdl/core/util/netutil"
-	"github.com/iyear/tdl/pkg/consts"
-	"github.com/iyear/tdl/pkg/extensions"
-	"github.com/iyear/tdl/pkg/kv"
-	"github.com/iyear/tdl/pkg/tclient"
+	"github.com/lshcx/tdl/core/logctx"
+	"github.com/lshcx/tdl/core/storage"
+	tclientcore "github.com/lshcx/tdl/core/tclient"
+	"github.com/lshcx/tdl/core/util/fsutil"
+	"github.com/lshcx/tdl/core/util/logutil"
+	"github.com/lshcx/tdl/core/util/netutil"
+	"github.com/lshcx/tdl/pkg/consts"
+	"github.com/lshcx/tdl/pkg/extensions"
+	"github.com/lshcx/tdl/pkg/kv"
+	"github.com/lshcx/tdl/pkg/tclient"
 )
 
 var (
@@ -166,6 +166,9 @@ func New() *cobra.Command {
 
 	cmd.PersistentFlags().String(consts.FlagNTP, "", "ntp server host, if not set, use system time")
 	cmd.PersistentFlags().Duration(consts.FlagReconnectTimeout, 5*time.Minute, "Telegram client reconnection backoff timeout, infinite if set to 0") // #158
+
+	cmd.PersistentFlags().Int(consts.FlagAppID, 15055931, "App ID from `https://my.telegram.org/`, default is `iyear`'s app")
+	cmd.PersistentFlags().String(consts.FlagAppHash, "021d433426cbb920eeb95164498fe3d3", "App hash from `https://my.telegram.org/`, default is `iyear`'s app")
 
 	// completion
 	_ = cmd.RegisterFlagCompletionFunc(consts.FlagNamespace, func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {

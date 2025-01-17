@@ -10,9 +10,8 @@ import (
 
 	"github.com/gabriel-vasile/mimetype"
 
-	"github.com/iyear/tdl/core/util/fsutil"
-	"github.com/iyear/tdl/core/util/mediautil"
-	"github.com/iyear/tdl/pkg/consts"
+	"github.com/lshcx/tdl/core/util/mediautil"
+	"github.com/lshcx/tdl/pkg/consts"
 )
 
 type info struct {
@@ -69,9 +68,7 @@ func walk(ctx context.Context, paths, excludes []string) ([]*file, error) {
 func buildFile(ctx context.Context, path string) (*file, error) {
 	file := &file{file: path}
 	t := strings.TrimRight(path, filepath.Ext(path)) + consts.UploadThumbExt
-	if fsutil.PathExists(t) {
-		file.thumb = t
-	}
+	file.thumb = t
 
 	size, err := os.Stat(path)
 	if err != nil {
@@ -97,6 +94,9 @@ func buildFile(ctx context.Context, path string) (*file, error) {
 			file.info = info
 		}
 	}
+
+	// print file info
+	fmt.Printf("File: %s, Size: %d, Mime: %s, Thumb: %s, Info: %+v\n", file.file, file.size, file.mime, file.thumb, file.info)
 
 	return file, nil
 }

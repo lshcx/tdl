@@ -18,7 +18,7 @@ import (
 	"github.com/google/go-github/v62/github"
 	"go.uber.org/multierr"
 
-	"github.com/iyear/tdl/extension"
+	"github.com/lshcx/tdl/extension"
 )
 
 var (

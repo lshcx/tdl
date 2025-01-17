@@ -5,7 +5,7 @@ package tpath
 import (
 	"path/filepath"
 
-	"github.com/iyear/tdl/core/util/fsutil"
+	"github.com/lshcx/tdl/core/util/fsutil"
 )
 
 // https://github.com/telegramdesktop/tdesktop/blob/dev/Telegram/SourceFiles/platform/linux/specific_linux.cpp#L669-L684
@@ -23,7 +23,7 @@ func desktopAppData(homedir string) []string {
 	prefix := filepath.Join(homedir, ".local", "share")
 	path = append(path,
 		filepath.Join(prefix, AppName),
-		// https://github.com/iyear/tdl/issues/92#issuecomment-1699307412
+		// https://github.com/lshcx/tdl/issues/92#issuecomment-1699307412
 		filepath.Join(prefix, "KotatogramDesktop"),
 		filepath.Join(prefix, "64Gram"),
 		filepath.Join(prefix, "TelegramDesktop"),

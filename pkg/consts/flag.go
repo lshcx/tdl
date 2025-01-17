@@ -13,4 +13,6 @@ const (
 	FlagNTP              = "ntp"
 	FlagReconnectTimeout = "reconnect-timeout"
 	FlagDlTemplate       = "template"
+	FlagAppID            = "app-id"
+	FlagAppHash          = "app-hash"
 )

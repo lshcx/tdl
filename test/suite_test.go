@@ -13,8 +13,8 @@ import (
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 
-	tcmd "github.com/iyear/tdl/cmd"
-	"github.com/iyear/tdl/test/testserver"
+	tcmd "github.com/lshcx/tdl/cmd"
+	"github.com/lshcx/tdl/test/testserver"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

@@ -13,8 +13,8 @@ import (
 	"github.com/gotd/td/tg"
 	"golang.org/x/sync/errgroup"
 
-	"github.com/iyear/tdl/core/tmedia"
-	"github.com/iyear/tdl/core/util/mediautil"
+	"github.com/lshcx/tdl/core/tmedia"
+	"github.com/lshcx/tdl/core/util/mediautil"
 )
 
 // MaxPartSize refer to https://core.telegram.org/api/files#uploading-files
@@ -170,14 +170,13 @@ func (u *Uploader) uploadFile(ctx context.Context, elem Elem) (tg.InputMediaClas
 		if elem.Height() > 0 {
 			videoAttributes.H = elem.Height()
 		}
+		videoAttributes.SetFlags()
 		attributes = append(attributes, videoAttributes)
-
 		doc := &tg.InputMediaUploadedDocument{
 			File:       f,
 			MimeType:   mime,
 			Attributes: attributes,
 		}
-
 		// set thumbnail if has
 		if thumb, ok := elem.Thumb(); ok {
 			if thumb, err := uploader.NewUploader(u.opts.Client).

@@ -14,16 +14,16 @@ import (
 	"go.uber.org/multierr"
 	"go.uber.org/zap"
 
-	"github.com/iyear/tdl/core/dcpool"
-	"github.com/iyear/tdl/core/downloader"
-	"github.com/iyear/tdl/core/logctx"
-	"github.com/iyear/tdl/core/storage"
-	"github.com/iyear/tdl/core/tclient"
-	"github.com/iyear/tdl/pkg/consts"
-	"github.com/iyear/tdl/pkg/key"
-	"github.com/iyear/tdl/pkg/prog"
-	"github.com/iyear/tdl/pkg/tmessage"
-	"github.com/iyear/tdl/pkg/utils"
+	"github.com/lshcx/tdl/core/dcpool"
+	"github.com/lshcx/tdl/core/downloader"
+	"github.com/lshcx/tdl/core/logctx"
+	"github.com/lshcx/tdl/core/storage"
+	"github.com/lshcx/tdl/core/tclient"
+	"github.com/lshcx/tdl/pkg/consts"
+	"github.com/lshcx/tdl/pkg/key"
+	"github.com/lshcx/tdl/pkg/prog"
+	"github.com/lshcx/tdl/pkg/tmessage"
+	"github.com/lshcx/tdl/pkg/utils"
 )
 
 type Options struct {

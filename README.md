@@ -45,7 +45,7 @@ Please refer to the [documentation](https://docs.iyear.me/tdl/).
 ![](https://raw.githubusercontent.com/iyear/sponsor/master/sponsors.svg)
 
 ## Contributors
-<a href="https://github.com/iyear/tdl/graphs/contributors">
+<a href="https://github.com/lshcx/tdl/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=iyear/tdl&max=750&columns=20" alt="contributors"/>
 </a>
 

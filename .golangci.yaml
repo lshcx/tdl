@@ -25,7 +25,7 @@ linters-settings:
     sections:
       - standard
       - default
-      - prefix(github.com/iyear/tdl)
+      - prefix(github.com/lshcx/tdl)
       - dot
     custom-order: true
   nakedret:

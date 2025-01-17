@@ -8,7 +8,7 @@ import (
 
 	"github.com/gotd/td/telegram/peers"
 
-	"github.com/iyear/tdl/core/storage/keygen"
+	"github.com/lshcx/tdl/core/storage/keygen"
 )
 
 type Peers struct {

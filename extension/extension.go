@@ -13,9 +13,9 @@ import (
 	"github.com/gotd/td/telegram"
 	"go.uber.org/zap"
 
-	"github.com/iyear/tdl/core/logctx"
-	"github.com/iyear/tdl/core/tclient"
-	"github.com/iyear/tdl/core/util/logutil"
+	"github.com/lshcx/tdl/core/logctx"
+	"github.com/lshcx/tdl/core/tclient"
+	"github.com/lshcx/tdl/core/util/logutil"
 )
 
 const EnvKey = "TDL_EXTENSION"

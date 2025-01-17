@@ -17,10 +17,10 @@ import (
 	"github.com/mattn/go-runewidth"
 	"go.uber.org/zap"
 
-	"github.com/iyear/tdl/core/logctx"
-	"github.com/iyear/tdl/core/storage"
-	"github.com/iyear/tdl/core/util/tutil"
-	"github.com/iyear/tdl/pkg/texpr"
+	"github.com/lshcx/tdl/core/logctx"
+	"github.com/lshcx/tdl/core/storage"
+	"github.com/lshcx/tdl/core/util/tutil"
+	"github.com/lshcx/tdl/pkg/texpr"
 )
 
 //go:generate go-enum --names --values --flag --nocase

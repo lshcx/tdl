@@ -10,7 +10,7 @@ import (
 	"github.com/go-faster/errors"
 	"github.com/jedib0t/go-pretty/v6/table"
 
-	"github.com/iyear/tdl/pkg/extensions"
+	"github.com/lshcx/tdl/pkg/extensions"
 )
 
 var (

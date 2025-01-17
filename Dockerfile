@@ -17,9 +17,9 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
     GOOS=$TARGETOS GOARCH=$TARGETARCH \
     go build -trimpath \
     -ldflags "-s -w  \
-    -X github.com/iyear/tdl/pkg/consts.Version=${VERSION}  \
-    -X github.com/iyear/tdl/pkg/consts.Commit=${COMMIT}  \
-    -X github.com/iyear/tdl/pkg/consts.CommitDate=${COMMIT_DATE}" \
+    -X github.com/lshcx/tdl/pkg/consts.Version=${VERSION}  \
+    -X github.com/lshcx/tdl/pkg/consts.Commit=${COMMIT}  \
+    -X github.com/lshcx/tdl/pkg/consts.CommitDate=${COMMIT_DATE}" \
     -o tdl
 
 FROM alpine:latest

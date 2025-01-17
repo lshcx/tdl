@@ -44,7 +44,7 @@
 ![](https://raw.githubusercontent.com/iyear/sponsor/master/sponsors.svg)
 
 ## 贡献者
-<a href="https://github.com/iyear/tdl/graphs/contributors">
+<a href="https://github.com/lshcx/tdl/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=iyear/tdl&max=750&columns=20" alt="contributors"/>
 </a>
 

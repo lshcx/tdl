@@ -9,8 +9,8 @@ import (
 	"go.uber.org/multierr"
 	"go.uber.org/zap"
 
-	"github.com/iyear/tdl/core/logctx"
-	"github.com/iyear/tdl/core/middlewares/takeout"
+	"github.com/lshcx/tdl/core/logctx"
+	"github.com/lshcx/tdl/core/middlewares/takeout"
 )
 
 var testMode = false

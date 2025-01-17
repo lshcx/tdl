@@ -8,10 +8,10 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"github.com/iyear/tdl/app/dl"
-	"github.com/iyear/tdl/core/logctx"
-	"github.com/iyear/tdl/core/storage"
-	"github.com/iyear/tdl/pkg/consts"
+	"github.com/lshcx/tdl/app/dl"
+	"github.com/lshcx/tdl/core/logctx"
+	"github.com/lshcx/tdl/core/storage"
+	"github.com/lshcx/tdl/pkg/consts"
 )
 
 func NewDownload() *cobra.Command {

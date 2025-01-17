@@ -11,14 +11,14 @@ import (
 	"github.com/spf13/viper"
 	"go.uber.org/multierr"
 
-	"github.com/iyear/tdl/core/dcpool"
-	"github.com/iyear/tdl/core/storage"
-	"github.com/iyear/tdl/core/tclient"
-	"github.com/iyear/tdl/core/uploader"
-	"github.com/iyear/tdl/core/util/tutil"
-	"github.com/iyear/tdl/pkg/consts"
-	"github.com/iyear/tdl/pkg/prog"
-	"github.com/iyear/tdl/pkg/utils"
+	"github.com/lshcx/tdl/core/dcpool"
+	"github.com/lshcx/tdl/core/storage"
+	"github.com/lshcx/tdl/core/tclient"
+	"github.com/lshcx/tdl/core/uploader"
+	"github.com/lshcx/tdl/core/util/tutil"
+	"github.com/lshcx/tdl/pkg/consts"
+	"github.com/lshcx/tdl/pkg/prog"
+	"github.com/lshcx/tdl/pkg/utils"
 )
 
 type Options struct {

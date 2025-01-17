@@ -11,7 +11,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/cobra/doc"
 
-	"github.com/iyear/tdl/core/util/fsutil"
+	"github.com/lshcx/tdl/core/util/fsutil"
 )
 
 func NewGen() *cobra.Command {

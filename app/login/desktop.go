@@ -14,14 +14,14 @@ import (
 	tdtdesktop "github.com/gotd/td/session/tdesktop"
 	"github.com/spf13/viper"
 
-	"github.com/iyear/tdl/core/storage"
-	"github.com/iyear/tdl/core/util/fsutil"
-	"github.com/iyear/tdl/pkg/consts"
-	"github.com/iyear/tdl/pkg/key"
-	"github.com/iyear/tdl/pkg/kv"
-	"github.com/iyear/tdl/pkg/tclient"
-	"github.com/iyear/tdl/pkg/tdesktop"
-	"github.com/iyear/tdl/pkg/tpath"
+	"github.com/lshcx/tdl/core/storage"
+	"github.com/lshcx/tdl/core/util/fsutil"
+	"github.com/lshcx/tdl/pkg/consts"
+	"github.com/lshcx/tdl/pkg/key"
+	"github.com/lshcx/tdl/pkg/kv"
+	"github.com/lshcx/tdl/pkg/tclient"
+	"github.com/lshcx/tdl/pkg/tdesktop"
+	"github.com/lshcx/tdl/pkg/tpath"
 )
 
 const tdata = "tdata"

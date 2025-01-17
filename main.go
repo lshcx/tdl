@@ -10,7 +10,7 @@ import (
 	"github.com/go-faster/errors"
 	"go.etcd.io/bbolt"
 
-	"github.com/iyear/tdl/cmd"
+	"github.com/lshcx/tdl/cmd"
 )
 
 func main() {
