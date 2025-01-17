@@ -179,10 +179,13 @@ func (u *Uploader) uploadFile(ctx context.Context, elem Elem) (tg.InputMediaClas
 		}
 		// set thumbnail if has
 		if thumb, ok := elem.Thumb(); ok {
+			fmt.Printf("Thumb is not nil, Upload thumbnail\n")
 			if thumb, err := uploader.NewUploader(u.opts.Client).
 				FromReader(ctx, thumb.Name(), thumb); err == nil {
 				doc.Thumb = thumb
 			}
+		} else {
+			fmt.Printf("Thumb is nil, Not upload thumbnail\n")
 		}
 
 		doc.SetFlags()
