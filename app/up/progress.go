@@ -72,8 +72,8 @@ func (p *progress) OnDone(elem uploader.Elem, err error) {
 		}
 
 		// remove thumbnail
-		if e.thumb != nil {
-			if err := os.Remove(e.thumb.File.Name()); err != nil {
+		if e.thumb != "" {
+			if err := os.Remove(e.thumb); err != nil {
 				p.fail(t, elem, errors.Wrap(err, "remove thumb"))
 				return
 			}
@@ -84,12 +84,6 @@ func (p *progress) OnDone(elem uploader.Elem, err error) {
 func (p *progress) closeFile(e *iterElem) error {
 	if err := e.file.Close(); err != nil {
 		return errors.Wrap(err, "close file")
-	}
-
-	if e.thumb != nil {
-		if err := e.thumb.Close(); err != nil {
-			return errors.Wrap(err, "close thumb")
-		}
 	}
 
 	return nil

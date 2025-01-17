@@ -24,12 +24,12 @@ func (u *uploaderFile) Size() int64 {
 }
 
 type iterElem struct {
-	file  *uploaderFile
-	thumb *uploaderFile
-	to    peers.Peer
+	file *uploaderFile
+	to   peers.Peer
 
 	asPhoto  bool
 	remove   bool
+	thumb    string
 	caption  string
 	mime     string
 	duration float64
@@ -42,9 +42,9 @@ func (e *iterElem) File() uploader.File {
 	return e.file
 }
 
-func (e *iterElem) Thumb() (uploader.File, bool) {
-	if e.thumb == nil {
-		return nil, false
+func (e *iterElem) Thumb() (string, bool) {
+	if e.thumb == "" {
+		return "", false
 	}
 	return e.thumb, true
 }

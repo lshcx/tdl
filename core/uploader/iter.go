@@ -21,7 +21,7 @@ type File interface {
 
 type Elem interface {
 	File() File
-	Thumb() (File, bool)
+	Thumb() (string, bool)
 	To() tg.InputPeerClass
 	AsPhoto() bool
 	Mime() string

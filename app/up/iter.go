@@ -70,7 +70,7 @@ func (i *iter) Next(ctx context.Context) bool {
 	i.cur++
 
 	// build thumbnail
-	var thumb *uploaderFile = nil
+	thumb := ""
 	if cur.thumb != "" {
 		if !i.validThumb(cur.thumb) {
 			vp := mediautil.GetVideoProcessor("")
@@ -78,9 +78,9 @@ func (i *iter) Next(ctx context.Context) bool {
 				vp.GenerateThumbnail(ctx, "00:00:01", cur.file, cur.thumb)
 			}
 		}
-		thumbFile, err := os.Open(cur.thumb)
-		if err == nil {
-			thumb = &uploaderFile{File: thumbFile, size: 0}
+
+		if i.validThumb(cur.thumb) {
+			thumb = cur.thumb
 		}
 	}
 
