@@ -122,46 +122,56 @@ func stats(files []*file) *info {
 	return info
 }
 
-func handleCaption(files []*file, asAlbum bool, optCaption string) error {
+func handleCaption(files []*file, asAlbum bool, optCaption Caption) error {
 
 	// build header
-	header := optCaption
+	header := optCaption.CaptionHeader
+	footer := optCaption.CaptionFooter
+	body := optCaption.CaptionBody
+
+	caption := ""
+	if body == "" {
+		if asAlbum {
+			info := stats(files)
+			if info.imageNum > 0 {
+				body += fmt.Sprintf("【图片】: %dP %.2fGB\n", info.imageNum, float64(info.imageSize)/1024/1024/1024)
+			}
+			if info.videoNum > 0 {
+				body += fmt.Sprintf("【视频】: %dV %.2fGB\n", info.videoNum, float64(info.videoSize)/1024/1024/1024)
+				body += fmt.Sprintf("【时长】: %.2f分钟\n", info.videoDuration/60)
+			}
+			if info.audioNum > 0 {
+				body += fmt.Sprintf("【音频】: %dA\n", info.audioNum)
+			}
+			if info.otherNum > 0 {
+				body += fmt.Sprintf("【其他】: %d\n", info.otherNum)
+			}
+			caption += header + body + footer
+		} else {
+			// base name
+			body += "【标题】：%s\n%s"
+			caption += header + body + footer
+		}
+	}
 
 	if asAlbum {
-		// build body
-		body := ""
-		info := stats(files)
-		if info.imageNum > 0 {
-			body += fmt.Sprintf("【图片】: %dP %.2fGB\n", info.imageNum, float64(info.imageSize)/1024/1024/1024)
-		}
-		if info.videoNum > 0 {
-			body += fmt.Sprintf("【视频】: %dV %.2fGB\n", info.videoNum, float64(info.videoSize)/1024/1024/1024)
-			body += fmt.Sprintf("【时长】: %.2f分钟\n", info.videoDuration/60)
-		}
-		if info.audioNum > 0 {
-			body += fmt.Sprintf("【音频】: %dA\n", info.audioNum)
-		}
-		if info.otherNum > 0 {
-			body += fmt.Sprintf("【其他】: %d\n", info.otherNum)
-		}
-
-		caption := fmt.Sprintf("%s\n%s", header, body)
 		for _, f := range files {
 			f.caption = caption
 		}
 	} else {
 		for _, f := range files {
-			body := ""
-			// base name
-			body += fmt.Sprintf("【标题】：%s\n", filepath.Base(f.file))
-			// if is video, show size and duration
 			if mediautil.IsVideo(f.mime) && f.info != nil {
-				body += fmt.Sprintf("【大小】：%.2fMB\n", float64(f.info.Size)/1024/1024)
-				body += fmt.Sprintf("【时长】：%.2f分钟\n", f.info.Duration)
+				tmpStr := ""
+				if f.info.Size > 0 {
+					tmpStr += fmt.Sprintf("【大小】：%.2fMB\n", float64(f.info.Size)/1024/1024)
+				}
+				if f.info.Duration > 0 {
+					tmpStr += fmt.Sprintf("【时长】：%.2f分钟\n", f.info.Duration)
+				}
+				f.caption = fmt.Sprintf(caption, filepath.Base(f.file), tmpStr)
+			} else {
+				f.caption = fmt.Sprintf(caption, filepath.Base(f.file), "")
 			}
-
-			caption := fmt.Sprintf("%s\n%s", header, body)
-			f.caption = caption
 		}
 	}
 

@@ -21,16 +21,22 @@ import (
 	"github.com/lshcx/tdl/pkg/utils"
 )
 
-type Options struct {
-	Chat          string
-	Paths         []string
-	Excludes      []string
-	Remove        bool
-	Photo         bool
-	AsAlbum       bool
-	MaxAlbumSize  int
-	MaxFileSize   int // GB
+type Caption struct {
 	CaptionHeader string
+	CaptionBody   string
+	CaptionFooter string
+}
+
+type Options struct {
+	Chat         string
+	Paths        []string
+	Excludes     []string
+	Remove       bool
+	Photo        bool
+	AsAlbum      bool
+	MaxAlbumSize int
+	MaxFileSize  int // GB
+	Caption      Caption
 }
 
 func Run(ctx context.Context, c *telegram.Client, kvd storage.Storage, opts Options) (rerr error) {
@@ -41,7 +47,7 @@ func Run(ctx context.Context, c *telegram.Client, kvd storage.Storage, opts Opti
 
 	files = filterFileSize(ctx, files, opts.MaxFileSize, opts.Remove)
 
-	if err := handleCaption(files, opts.AsAlbum, opts.CaptionHeader); err != nil {
+	if err := handleCaption(files, opts.AsAlbum, opts.Caption); err != nil {
 		return errors.Wrap(err, "handle caption")
 	}
 

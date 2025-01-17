@@ -8,8 +8,11 @@
 - using ffmpeg to get video info and split video
 - add `-as-album` and `-max-album-size` flags to upload as album
 - add `-max-file-size` flag to auto split video file if it is greater than the value, default is 2GB
-- add `-caption` flag to add custom caption header
+~~ - add `-caption` flag to add custom caption header ~~
 - add `-app-id` and `-app-hash` flags to use your own app id and app hash. If not set, it will use the app id and app hash of `iyear`
+- add `-caption-header` and `-caption-body` and `-caption-footer` flags to add custom caption
+- if set `--rm` flag, it will also remove thumbnail after uploading
+
 
 English | <a href="README_zh.md">简体中文</a>
 

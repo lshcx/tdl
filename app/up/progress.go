@@ -70,6 +70,14 @@ func (p *progress) OnDone(elem uploader.Elem, err error) {
 			p.fail(t, elem, errors.Wrap(err, "remove file"))
 			return
 		}
+
+		// remove thumbnail
+		if e.thumb != nil {
+			if err := os.Remove(e.thumb.File.Name()); err != nil {
+				p.fail(t, elem, errors.Wrap(err, "remove thumb"))
+				return
+			}
+		}
 	}
 }
 
