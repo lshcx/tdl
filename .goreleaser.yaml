@@ -16,27 +16,27 @@ builds:
     goos:
       - linux
       - windows
-      - darwin
+      # - darwin
     goarch:
-      - 386
+      # - 386
       - amd64
-      - arm
-      - arm64
-      - riscv64
-      - loong64
-    goarm:
-      - 5
-      - 6
-      - 7
+      # - arm
+      # - arm64
+      # - riscv64
+      # - loong64
+    # goarm:
+      # - 5
+      # - 6
+      # - 7
 checksum:
   name_template: '{{ .ProjectName }}_checksums.txt'
 archives:
   - name_template: '{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}'
     replacements:
-      darwin: MacOS
+      # darwin: MacOS
       linux: Linux
       windows: Windows
-      386: 32bit
+      # 386: 32bit
       amd64: 64bit
     format_overrides:
       - goos: windows
