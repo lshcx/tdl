@@ -95,9 +95,6 @@ func buildFile(ctx context.Context, path string) (*file, error) {
 		}
 	}
 
-	// print file info
-	fmt.Printf("File: %s, Size: %d, Mime: %s, Thumb: %s, Info: %+v\n", file.file, file.size, file.mime, file.thumb, file.info)
-
 	return file, nil
 }
 

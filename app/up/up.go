@@ -2,6 +2,7 @@ package up
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/fatih/color"
 	"github.com/go-faster/errors"
@@ -49,6 +50,11 @@ func Run(ctx context.Context, c *telegram.Client, kvd storage.Storage, opts Opti
 
 	if err := handleCaption(files, opts.AsAlbum, opts.Caption); err != nil {
 		return errors.Wrap(err, "handle caption")
+	}
+
+	// show files
+	for _, f := range files {
+		fmt.Printf("File: %s, Size: %d, Mime: %s, Thumb: %s, Info: %+v\n", f.file, f.size, f.mime, f.thumb, f.info)
 	}
 
 	color.Blue("Files count: %d", len(files))
