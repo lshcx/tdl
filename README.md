@@ -9,6 +9,7 @@
 - add `-as-album` and `-max-album-size` flags to upload as album
 - add `-max-file-size` flag to auto split video file if it is greater than the value, default is 2GB
 - add `-caption` flag to add custom caption header
+- add `-app-id` and `-app-hash` flags to use your own app id and app hash. If not set, it will use the app id and app hash of `iyear`
 
 English | <a href="README_zh.md">简体中文</a>
 

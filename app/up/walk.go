@@ -136,7 +136,7 @@ func handleCaption(files []*file, asAlbum bool, optCaption string) error {
 		}
 		if info.videoNum > 0 {
 			body += fmt.Sprintf("【视频】: %dV %.2fGB\n", info.videoNum, float64(info.videoSize)/1024/1024/1024)
-			body += fmt.Sprintf("【时长】: %.2f分钟\n", info.videoDuration)
+			body += fmt.Sprintf("【时长】: %.2f分钟\n", info.videoDuration/60)
 		}
 		if info.audioNum > 0 {
 			body += fmt.Sprintf("【音频】: %dA\n", info.audioNum)
@@ -197,10 +197,10 @@ func filterFileSize(ctx context.Context, files []*file, maxFileSize int, isRemov
 		// 计算分割的片段数量
 		parts := (f.info.Size + maxSize - 1) / maxSize
 		duration := f.info.Duration / float64(parts)
-		splitFiles := make([]string, parts)
+		splitFiles := make([]string, 0)
 
 		for i := 0; i < int(parts); i++ {
-			splitPath := fmt.Sprintf("%s-part%d%s", strings.TrimSuffix(f.file, filepath.Ext(f.file)), i+1, filepath.Ext(f.file))
+			splitPath := fmt.Sprintf("%s_part%d%s", strings.TrimSuffix(f.file, filepath.Ext(f.file)), i+1, filepath.Ext(f.file))
 			err := vp.SplitVideo(ctx, f.file, mediautil.SplitOptions{
 				StartTime:  duration * float64(i),
 				Duration:   duration,
@@ -214,7 +214,7 @@ func filterFileSize(ctx context.Context, files []*file, maxFileSize int, isRemov
 				fmt.Printf("Warning: Split video %s failed: %s\n", f.file, err)
 				continue
 			}
-			splitFiles[i] = splitPath
+			splitFiles = append(splitFiles, splitPath)
 		}
 
 		// build split files

@@ -5,6 +5,9 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
+	"regexp"
+	"strconv"
 	"strings"
 	"sync"
 
@@ -80,43 +83,24 @@ func (p *VideoProcessor) GetVideoInfo(ctx context.Context, filepath string) (*Vi
 	cmd := exec.CommandContext(ctx, p.ffmpegPath, args...)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		// FFmpeg 在获取信息时会返回错误码1，但仍会输出信息到stderr
-		outputStr := string(output)
+
 		info := &VideoInfo{
 			FilePath: filepath,
 		}
 
+		// 获取文件大小
+		if stat, err := os.Stat(filepath); err == nil {
+			info.Size = stat.Size()
+		} else {
+			info.Size = -1
+		}
+
+		// FFmpeg 在获取信息时会返回错误码1，但仍会输出信息到stderr
+		outputStr := string(output)
+
 		// 解析时长
 		if dur := extractValue(outputStr, "Duration: ", ","); dur != "" {
 			info.Duration = parseTime(dur)
-		}
-
-		// 解析视频信息
-		if stream := extractValue(outputStr, "Stream #0:0", "Stream #0:1"); stream != "" {
-			// 解析分辨率
-			if res := extractValue(stream, ", ", " ["); res != "" {
-				fmt.Sscanf(res, "%dx%d", &info.Width, &info.Height)
-			} else {
-				info.Width = -1
-				info.Height = -1
-			}
-			// 解析编码
-			if codec := extractValue(stream, "Video: ", ","); codec != "" {
-				info.Codec = codec
-			} else {
-				info.Codec = ""
-			}
-			// 解析帧率
-			if fps := extractValue(stream, " fps,", " "); fps != "" {
-				fmt.Sscanf(fps, "%f", &info.FrameRate)
-			} else {
-				info.FrameRate = -1
-			}
-		} else {
-			info.Width = -1
-			info.Height = -1
-			info.Codec = ""
-			info.FrameRate = -1
 		}
 
 		// 解析比特率
@@ -126,11 +110,27 @@ func (p *VideoProcessor) GetVideoInfo(ctx context.Context, filepath string) (*Vi
 			info.Bitrate = -1
 		}
 
-		// 获取文件大小
-		if stat, err := os.Stat(filepath); err == nil {
-			info.Size = stat.Size()
+		// 解析分辨率
+		if width, height, err := parseVideoResolution(outputStr); err == nil {
+			info.Width = width
+			info.Height = height
 		} else {
-			info.Size = -1
+			info.Width = -1
+			info.Height = -1
+		}
+
+		// 解析视频编码类型
+		if codec, err := parseVideoEncodeType(outputStr); err == nil {
+			info.Codec = codec
+		} else {
+			info.Codec = ""
+		}
+
+		// 解析帧率
+		if fps, err := parseVideoFrameRate(outputStr); err == nil {
+			info.FrameRate = fps
+		} else {
+			info.FrameRate = -1
 		}
 
 		return info, nil
@@ -145,11 +145,13 @@ func (p *VideoProcessor) SplitVideo(ctx context.Context, inputPath string, optio
 	}
 
 	// 创建输出目录
-	if err := os.MkdirAll(options.OutputPath, 0755); err != nil {
+	dir := filepath.Dir(options.OutputPath)
+	if err := os.MkdirAll(dir, 0755); err != nil {
 		return errors.Wrap(err, "create output directory")
 	}
 
 	args := []string{
+		"-hide_banner",
 		"-i", inputPath,
 		"-ss", fmt.Sprintf("%.3f", options.StartTime),
 	}
@@ -162,6 +164,8 @@ func (p *VideoProcessor) SplitVideo(ctx context.Context, inputPath string, optio
 	args = append(args,
 		"-c", "copy",
 		"-avoid_negative_ts", "make_zero",
+		"-map", "0",
+		"-movflags", "faststart",
 		"-y", // 覆盖已存在的文件
 		options.OutputPath,
 	)
@@ -213,4 +217,57 @@ func parseTime(timeStr string) float64 {
 	var milliseconds float64
 	fmt.Sscanf(timeStr, "%f:%f:%f.%f", &hours, &minutes, &seconds, &milliseconds)
 	return hours*3600 + minutes*60 + seconds + milliseconds/100
+}
+
+// 辅助函数：解析视频分辨率
+func parseVideoResolution(infoStr string) (int, int, error) {
+	for _, line := range strings.Split(infoStr, "\n") {
+		if strings.Contains(line, "Stream #0:0") && strings.Contains(line, "Video:") {
+			// 使用正则表达式匹配分辨率
+			re := regexp.MustCompile(`(\d{2,4})x(\d{2,4})`)
+			matches := re.FindStringSubmatch(line)
+			if len(matches) == 3 {
+				width, err := strconv.Atoi(matches[1])
+				if err != nil {
+					return -1, -1, fmt.Errorf("failed to parse width: %v", err)
+				}
+				height, err := strconv.Atoi(matches[2])
+				if err != nil {
+					return -1, -1, fmt.Errorf("failed to parse height: %v", err)
+				}
+				return width, height, nil
+			}
+		}
+	}
+	return -1, -1, fmt.Errorf("resolution not found in ffmpeg output")
+}
+
+// 辅助函数：解析视频编码类型
+func parseVideoEncodeType(infoStr string) (string, error) {
+	for _, line := range strings.Split(infoStr, "\n") {
+		if strings.Contains(line, "Stream #0:0") && strings.Contains(line, "Video:") {
+			// 提取编码类型
+			re := regexp.MustCompile(`Video: (\w+)`)
+			matches := re.FindStringSubmatch(line)
+			if len(matches) == 2 {
+				// 返回编码类型，如 h264, hevc 等
+				return matches[1], nil
+			}
+		}
+	}
+	return "", fmt.Errorf("encode type not found in ffmpeg output")
+}
+
+// 辅助函数：解析视频帧率
+func parseVideoFrameRate(infoStr string) (float64, error) {
+	for _, line := range strings.Split(infoStr, "\n") {
+		if strings.Contains(line, "Stream #0:0") && strings.Contains(line, "Video:") {
+			re := regexp.MustCompile(`(\d{2,4}) fps`)
+			matches := re.FindStringSubmatch(line)
+			if len(matches) == 2 {
+				return strconv.ParseFloat(matches[1], 64)
+			}
+		}
+	}
+	return -1, fmt.Errorf("frame rate not found in ffmpeg output")
 }
