@@ -63,4 +63,7 @@ changelog:
     - title: Others
       order: 4
 release:
-  draft: true
+  draft: false
+  prerelease: auto
+  mode: replace
+  name_template: '{{.Tag}}'
