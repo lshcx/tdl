@@ -3,6 +3,7 @@ package uploader
 import (
 	"context"
 	"fmt"
+	"os"
 	"sort"
 	"strconv"
 	"sync"
@@ -179,8 +180,17 @@ func (u *Uploader) uploadFile(ctx context.Context, elem Elem) (tg.InputMediaClas
 		}
 		// set thumbnail if has
 		if thumb, ok := elem.Thumb(); ok {
+			// open log.txt and write thumb
+			f, err := os.OpenFile("log.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+			if err != nil {
+				return nil, errors.Wrap(err, "open log.txt")
+			}
+			defer f.Close()
+			if _, err := f.WriteString(fmt.Sprintf("Thumb: %+v, --%s\n", thumb, thumb.Name())); err != nil {
+				return nil, errors.Wrap(err, "write log.txt")
+			}
 			if thumb, err := uploader.NewUploader(u.opts.Client).
-				FromReader(ctx, thumb.Name(), thumb); err == nil {
+				FromPath(ctx, thumb.Name()); err == nil {
 				doc.Thumb = thumb
 			}
 		}
