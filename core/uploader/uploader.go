@@ -207,21 +207,6 @@ func (u *Uploader) uploadFile(ctx context.Context, elem Elem) (tg.InputMediaClas
 		media = doc
 	}
 
-	// test
-	req := &tg.MessagesSendMediaRequest{
-		Peer:     elem.To(),
-		Media:    media,
-		Message:  elem.Caption(),
-		RandomID: time.Now().UnixNano(),
-		Silent:   false,
-	}
-	req.SetFlags()
-
-	_, err = u.opts.Client.MessagesSendMedia(ctx, req)
-	if err != nil {
-		return nil, errors.Wrap(err, "send single media")
-	}
-
 	// Uploads a media file to a chat, without sending it, returning only a MessageMedia
 	// constructor that can be used to later send the file to multiple chats, without
 	// reuploading it every time. ref: https://core.telegram.org/api/files#albums-grouped-media

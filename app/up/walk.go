@@ -126,6 +126,11 @@ func handleCaption(files []*file, asAlbum bool, optCaption Caption) error {
 	footer := optCaption.CaptionFooter
 	body := optCaption.CaptionBody
 
+	// 如果header不为空，并且最后不是换行符，则添加换行符
+	if header != "" && header[len(header)-1] != '\n' {
+		header += "\n"
+	}
+
 	caption := ""
 	if body == "" {
 		if asAlbum {
