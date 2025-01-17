@@ -179,13 +179,10 @@ func (u *Uploader) uploadFile(ctx context.Context, elem Elem) (tg.InputMediaClas
 		}
 		// set thumbnail if has
 		if thumb, ok := elem.Thumb(); ok {
-			fmt.Printf("Thumb is not nil, Upload thumbnail\n")
 			if thumb, err := uploader.NewUploader(u.opts.Client).
 				FromReader(ctx, thumb.Name(), thumb); err == nil {
 				doc.Thumb = thumb
 			}
-		} else {
-			fmt.Printf("Thumb is nil, Not upload thumbnail\n")
 		}
 
 		doc.SetFlags()
@@ -208,6 +205,21 @@ func (u *Uploader) uploadFile(ctx context.Context, elem Elem) (tg.InputMediaClas
 
 		doc.SetFlags()
 		media = doc
+	}
+
+	// test
+	req := &tg.MessagesSendMediaRequest{
+		Peer:     elem.To(),
+		Media:    media,
+		Message:  elem.Caption(),
+		RandomID: time.Now().UnixNano(),
+		Silent:   false,
+	}
+	req.SetFlags()
+
+	_, err = u.opts.Client.MessagesSendMedia(ctx, req)
+	if err != nil {
+		return nil, errors.Wrap(err, "send single media")
 	}
 
 	// Uploads a media file to a chat, without sending it, returning only a MessageMedia
