@@ -85,7 +85,7 @@ func buildFile(ctx context.Context, path string) (*file, error) {
 
 	// if mime is `application/octet-stream`, and filename ends with `.ts`, then set mime to `video/mp2t`
 	if file.mime == "application/octet-stream" && strings.HasSuffix(path, ".ts") {
-		file.mime = "video/mp2t"
+		file.mime = "video/mp4"
 	}
 
 	// get video info if is a video
