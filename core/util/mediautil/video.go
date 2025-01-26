@@ -262,10 +262,22 @@ func parseVideoEncodeType(infoStr string) (string, error) {
 func parseVideoFrameRate(infoStr string) (float64, error) {
 	for _, line := range strings.Split(infoStr, "\n") {
 		if strings.Contains(line, "Stream #0:0") && strings.Contains(line, "Video:") {
-			re := regexp.MustCompile(`(\d{2,4}) fps`)
-			matches := re.FindStringSubmatch(line)
-			if len(matches) == 2 {
-				return strconv.ParseFloat(matches[1], 64)
+			// 尝试匹配不同格式的帧率
+			patterns := []string{
+				`(\d+\.?\d*) fps`, // 匹配 57.52 fps
+				`(\d+\.?\d*) tbr`, // 匹配 60 tbr
+				`(\d+) tbc`,       // 匹配 120 tbc
+			}
+
+			for _, pattern := range patterns {
+				re := regexp.MustCompile(pattern)
+				matches := re.FindStringSubmatch(line)
+				if len(matches) == 2 {
+					fps, err := strconv.ParseFloat(matches[1], 64)
+					if err == nil {
+						return fps, nil
+					}
+				}
 			}
 		}
 	}
