@@ -190,6 +190,10 @@ func filterFileSize(ctx context.Context, files []*file, maxFileSize int, isRemov
 	maxSize := int64(maxFileSize * 1024 * 1024 * 1024)
 
 	for _, f := range files {
+		if f.size == 0 {
+			fmt.Printf("Warning: Skip file %s because file size is 0\n", f.file)
+			continue
+		}
 
 		// 如果文件大小小于等于最大文件大小，则添加到过滤后的文件列表
 		if f.size <= maxSize {

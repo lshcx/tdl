@@ -52,6 +52,10 @@ func (u *Uploader) Upload(ctx context.Context) error {
 
 	u.albumMedia = make([]mediaBinding, 0)
 	index := 0
+
+	// 用于跟踪是否被用户取消
+	var canceled bool
+
 	for u.opts.Iter.Next(wgctx) {
 		elem := u.opts.Iter.Value()
 		id := index
@@ -68,13 +72,15 @@ func (u *Uploader) Upload(ctx context.Context) error {
 
 			media, err := u.uploadFile(wgctx, currentElem)
 			if err != nil {
-				// canceled by user, so we directly return error to stop all
 				if errors.Is(err, context.Canceled) {
-					return errors.Wrap(err, "upload canceled by user")
+					canceled = true
+					// 不立即返回错误，让已上传的文件能被处理
+					return nil
 				}
 
 				// don't return error, just log it
 				fmt.Printf("Error: upload file %s failed: %v\n", currentElem.File().Name(), err)
+				return nil
 			}
 
 			u.mu.Lock()
@@ -97,19 +103,30 @@ func (u *Uploader) Upload(ctx context.Context) error {
 		return errors.Wrap(err, "wait uploader")
 	}
 
-	// sort albumMedia by index
-	sort.Slice(u.albumMedia, func(i, j int) bool {
-		return u.albumMedia[i].index < u.albumMedia[j].index
-	})
+	// 即使被取消，也尝试发送已上传的文件
+	if len(u.albumMedia) > 0 {
+		// 排序已上传的媒体
+		sort.Slice(u.albumMedia, func(i, j int) bool {
+			return u.albumMedia[i].index < u.albumMedia[j].index
+		})
 
-	if u.opts.AsAlbum && len(u.albumMedia) > 0 {
-		return u.sendMultiMedia(ctx, u.albumMedia)
-	} else {
-		for _, mb := range u.albumMedia {
-			if err := u.sendSingleMedia(ctx, mb); err != nil {
-				return errors.Wrap(err, "send single media")
+		// 发送已上传的文件
+		if u.opts.AsAlbum {
+			if err := u.sendMultiMedia(ctx, u.albumMedia); err != nil {
+				return errors.Wrap(err, "send multi media")
+			}
+		} else {
+			for _, mb := range u.albumMedia {
+				if err := u.sendSingleMedia(ctx, mb); err != nil {
+					return errors.Wrap(err, "send single media")
+				}
 			}
 		}
+	}
+
+	// 如果是用户取消，最后再返回取消错误
+	if canceled {
+		return errors.New("upload canceled by user")
 	}
 
 	return nil
