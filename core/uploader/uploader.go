@@ -95,12 +95,20 @@ func (u *Uploader) Upload(ctx context.Context) error {
 		})
 	}
 
+	// 检查迭代器错误
 	if err := u.opts.Iter.Err(); err != nil {
-		return errors.Wrap(err, "iter error")
+		if !errors.Is(err, context.Canceled) {
+			return errors.Wrap(err, "iter error")
+		}
+		canceled = true
 	}
 
+	// 等待所有上传任务完成
 	if err := wg.Wait(); err != nil {
-		return errors.Wrap(err, "wait uploader")
+		if !errors.Is(err, context.Canceled) {
+			return errors.Wrap(err, "wait uploader")
+		}
+		canceled = true
 	}
 
 	// 即使被取消，也尝试发送已上传的文件
