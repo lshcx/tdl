@@ -159,6 +159,8 @@ func handleCaption(files []*file, asAlbum bool, optCaption Caption) error {
 			body += "【标题】：%s\n%s"
 			caption += header + body + footer
 		}
+	} else {
+		caption = header + body + footer
 	}
 
 	if asAlbum {
