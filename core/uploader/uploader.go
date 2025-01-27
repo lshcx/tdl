@@ -113,6 +113,9 @@ func (u *Uploader) Upload(ctx context.Context) error {
 
 	// 即使被取消，也尝试发送已上传的文件
 	if len(u.albumMedia) > 0 {
+		// 创建新的 context 用于发送
+		sendCtx := context.Background()
+
 		// 排序已上传的媒体
 		sort.Slice(u.albumMedia, func(i, j int) bool {
 			return u.albumMedia[i].index < u.albumMedia[j].index
@@ -120,12 +123,12 @@ func (u *Uploader) Upload(ctx context.Context) error {
 
 		// 发送已上传的文件
 		if u.opts.AsAlbum {
-			if err := u.sendMultiMedia(ctx, u.albumMedia); err != nil {
+			if err := u.sendMultiMedia(sendCtx, u.albumMedia); err != nil {
 				return errors.Wrap(err, "send multi media")
 			}
 		} else {
 			for _, mb := range u.albumMedia {
-				if err := u.sendSingleMedia(ctx, mb); err != nil {
+				if err := u.sendSingleMedia(sendCtx, mb); err != nil {
 					return errors.Wrap(err, "send single media")
 				}
 			}
