@@ -13,6 +13,11 @@
 - add `-caption-header` and `-caption-body` and `-caption-footer` flags to add custom caption
 - if set `--rm` flag, it will also remove thumbnail after uploading
 
+#### 2025-01-27
+- drop files with size 0 before upload
+- send uploaded file as album when upload cancelled by user
+- fix video frame rate parsing bug
+
 
 English | <a href="README_zh.md">简体中文</a>
 
