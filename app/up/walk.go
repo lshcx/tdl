@@ -187,7 +187,7 @@ func handleCaption(files []*file, asAlbum bool, optCaption Caption) error {
 	return nil
 }
 
-func filterFileSize(ctx context.Context, files []*file, maxFileSize int, isRemove bool) []*file {
+func filterFileSize(ctx context.Context, files []*file, maxFileSize float64, isRemove bool) []*file {
 	filteredFiles := make([]*file, 0)
 	maxSize := int64(maxFileSize * 1024 * 1024 * 1024)
 

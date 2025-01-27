@@ -36,7 +36,7 @@ type Options struct {
 	Photo        bool
 	AsAlbum      bool
 	MaxAlbumSize int
-	MaxFileSize  int // GB
+	MaxFileSize  float64 // GB
 	Caption      Caption
 }
 

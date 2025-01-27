@@ -40,7 +40,7 @@ func NewUpload() *cobra.Command {
 	cmd.Flags().StringVar(&opts.Caption.CaptionHeader, "caption", "", "custom caption header(end with \\n)")
 	cmd.Flags().StringVar(&opts.Caption.CaptionBody, "caption-body", "", "custom caption body(end with \\n)")
 	cmd.Flags().StringVar(&opts.Caption.CaptionFooter, "caption-footer", "", "custom caption footer")
-	cmd.Flags().IntVar(&opts.MaxFileSize, "max-file-size", 2, "max file size(GB), if the file size is greater than this value, it will be split into multiple files")
+	cmd.Flags().Float64Var(&opts.MaxFileSize, "max-file-size", 2, "max file size(GB), if the file size is greater than this value, it will be split into multiple files")
 
 	// completion and validation
 	_ = cmd.MarkFlagRequired(path)
