@@ -67,7 +67,7 @@ func walk(ctx context.Context, paths, excludes []string) ([]*file, error) {
 
 func buildFile(ctx context.Context, path string) (*file, error) {
 	file := &file{file: path}
-	t := strings.TrimRight(path, filepath.Ext(path)) + consts.UploadThumbExt
+	t := strings.TrimSuffix(path, filepath.Ext(path)) + consts.UploadThumbExt
 	file.thumb = t
 
 	size, err := os.Stat(path)
