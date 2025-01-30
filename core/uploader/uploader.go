@@ -309,6 +309,8 @@ func (u *Uploader) sendSingleMedia(ctx context.Context, mb mediaBinding) error {
 }
 
 func (u *Uploader) sendMultiMedia(ctx context.Context, mbs []mediaBinding, hasCaption bool) error {
+
+	isFirst := true
 	// build inputSingleMedia list
 	inputSingleMedias := make([]tg.InputSingleMedia, 0, len(mbs))
 	for _, mb := range mbs {
@@ -316,8 +318,9 @@ func (u *Uploader) sendMultiMedia(ctx context.Context, mbs []mediaBinding, hasCa
 			Media:    mb.media,
 			RandomID: time.Now().UnixNano(),
 		}
-		if hasCaption {
+		if hasCaption && isFirst {
 			single.Message = mb.elem.Caption()
+			isFirst = false
 		}
 		single.SetFlags()
 		inputSingleMedias = append(inputSingleMedias, single)
