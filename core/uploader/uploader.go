@@ -122,7 +122,7 @@ func (u *Uploader) Upload(ctx context.Context) error {
 			// check if item in u.albumMedia is in the range from albumIndex to albumIndex+u.opts.MaxAlbumSize
 			// if so, pop it from u.albumMedia and add it to tmpAlbumMedia
 			for i := 0; i < len(u.albumMedia); i++ {
-				if u.albumMedia[i].index >= albumIndex && u.albumMedia[i].index < albumIndex+u.opts.MaxAlbumSize && len(tmpAlbumMedia) <= u.opts.MaxAlbumSize {
+				if u.albumMedia[i].index >= albumIndex && u.albumMedia[i].index < albumIndex+u.opts.MaxAlbumSize && len(tmpAlbumMedia) < u.opts.MaxAlbumSize {
 					tmpAlbumMedia = append(tmpAlbumMedia, u.albumMedia[i])
 					u.albumMedia = append(u.albumMedia[:i], u.albumMedia[i+1:]...)
 					i--

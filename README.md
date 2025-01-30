@@ -21,6 +21,7 @@
 #### 2025-01-30
 - add `-thumb-time` flag to set thumbnail time, default is `00:00:01`
 - When the sending conditions are met, the message will be sent immediately instead of waiting for all files to be uploaded.
+- fix video duration bug when flag `-as-album` is not set
 
 English | <a href="README_zh.md">简体中文</a>
 

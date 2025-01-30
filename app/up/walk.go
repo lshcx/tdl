@@ -175,7 +175,7 @@ func handleCaption(files []*file, asAlbum bool, optCaption Caption) error {
 					tmpStr += fmt.Sprintf("【大小】：%.2fMB\n", float64(f.info.Size)/1024/1024)
 				}
 				if f.info.Duration > 0 {
-					tmpStr += fmt.Sprintf("【时长】：%.2f分钟\n", f.info.Duration)
+					tmpStr += fmt.Sprintf("【时长】：%.2f分钟\n", f.info.Duration/60)
 				}
 				f.caption = fmt.Sprintf(caption, filepath.Base(f.file), tmpStr)
 			} else {
