@@ -88,6 +88,10 @@ func buildFile(ctx context.Context, path string) (*file, error) {
 		file.mime = "video/mp4"
 	}
 
+	if mediautil.IsVideo(file.mime) {
+		file.mime = "video/mp4"
+	}
+
 	// get video info if is a video
 	if mediautil.IsVideo(file.mime) {
 		vp := mediautil.GetVideoProcessor(consts.FFmpegPath)
