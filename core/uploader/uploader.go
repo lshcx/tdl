@@ -52,6 +52,7 @@ func (u *Uploader) Upload(ctx context.Context) error {
 
 	u.albumMedia = make([]mediaBinding, 0)
 	index := 0
+	albumIndex := 0
 	hasCaption := true
 
 	// 用于跟踪是否被用户取消
@@ -97,8 +98,8 @@ func (u *Uploader) Upload(ctx context.Context) error {
 				return u.albumMedia[i].index < u.albumMedia[j].index
 			})
 
-			// 如果前maxAlbumSize个元素的index是连续的，则取出前maxAlbumSize个元素
-			if len(u.albumMedia) >= u.opts.MaxAlbumSize && u.albumMedia[0].index+u.opts.MaxAlbumSize-1 == u.albumMedia[u.opts.MaxAlbumSize-1].index {
+			// 如果前maxAlbumSize个元素的index是连续的并且第一个元素的index是albumIndex，则取出前maxAlbumSize个元素
+			if len(u.albumMedia) >= u.opts.MaxAlbumSize && u.albumMedia[0].index == albumIndex && u.albumMedia[0].index+u.opts.MaxAlbumSize-1 == u.albumMedia[u.opts.MaxAlbumSize-1].index {
 				albumMedia := u.albumMedia[:u.opts.MaxAlbumSize]
 				u.albumMedia = u.albumMedia[u.opts.MaxAlbumSize:]
 				if err := u.send(albumMedia, hasCaption); err != nil {
@@ -109,6 +110,7 @@ func (u *Uploader) Upload(ctx context.Context) error {
 				if hasCaption {
 					hasCaption = false
 				}
+				albumIndex += u.opts.MaxAlbumSize
 			}
 
 			return nil
