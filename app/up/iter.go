@@ -24,24 +24,26 @@ type file struct {
 }
 
 type iter struct {
-	files  []*file
-	to     peers.Peer
-	photo  bool
-	remove bool
-	delay  time.Duration
+	files     []*file
+	to        peers.Peer
+	photo     bool
+	remove    bool
+	delay     time.Duration
+	thumbTime string
 
 	cur  int
 	err  error
 	file uploader.Elem
 }
 
-func newIter(files []*file, to peers.Peer, photo, remove bool, delay time.Duration) *iter {
+func newIter(files []*file, to peers.Peer, photo, remove bool, delay time.Duration, thumbTime string) *iter {
 	return &iter{
-		files:  files,
-		to:     to,
-		photo:  photo,
-		remove: remove,
-		delay:  delay,
+		files:     files,
+		to:        to,
+		photo:     photo,
+		remove:    remove,
+		delay:     delay,
+		thumbTime: thumbTime,
 
 		cur:  0,
 		err:  nil,
@@ -75,7 +77,8 @@ func (i *iter) Next(ctx context.Context) bool {
 		if !i.validThumb(cur.thumb) {
 			vp := mediautil.GetVideoProcessor("")
 			if vp != nil {
-				vp.GenerateThumbnail(ctx, "00:00:01", cur.file, cur.thumb)
+				// generate thumbnail with specified time
+				vp.GenerateThumbnail(ctx, i.thumbTime, cur.file, cur.thumb)
 			}
 		}
 

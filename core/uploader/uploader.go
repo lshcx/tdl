@@ -51,7 +51,9 @@ func (u *Uploader) Upload(ctx context.Context) error {
 	wg.SetLimit(u.opts.Limit)
 
 	u.albumMedia = make([]mediaBinding, 0)
+	tmpAlbumMedia := make([]mediaBinding, 0)
 	index := 0
+	albumIndex := 0
 
 	// 用于跟踪是否被用户取消
 	var canceled bool
@@ -83,13 +85,60 @@ func (u *Uploader) Upload(ctx context.Context) error {
 				return nil
 			}
 
+			if !u.opts.AsAlbum {
+				// send single media
+				if err := u.sendSingleMedia(wgctx, mediaBinding{
+					index: currentID,
+					elem:  currentElem,
+					media: media,
+				}); err != nil {
+					// don't return error, just log it
+					fmt.Printf("Error: send single media failed: %v\n", err)
+					return nil
+				}
+			}
+
 			u.mu.Lock()
-			u.albumMedia = append(u.albumMedia, mediaBinding{
-				index: currentID,
-				elem:  currentElem,
-				media: media,
-			})
-			u.mu.Unlock()
+			defer u.mu.Unlock()
+
+			if currentID >= albumIndex && currentID < albumIndex+u.opts.MaxAlbumSize {
+				// if currentID is in the range from albumIndex to albumIndex+u.opts.MaxAlbumSize,
+				// add it to tmpAlbumMedia
+				tmpAlbumMedia = append(tmpAlbumMedia, mediaBinding{
+					index: currentID,
+					elem:  currentElem,
+					media: media,
+				})
+			} else {
+				// if currentID is not in the range from albumIndex to albumIndex+u.opts.MaxAlbumSize,
+				// add it to u.albumMedia
+				u.albumMedia = append(u.albumMedia, mediaBinding{
+					index: currentID,
+					elem:  currentElem,
+					media: media,
+				})
+			}
+
+			// check if item in u.albumMedia is in the range from albumIndex to albumIndex+u.opts.MaxAlbumSize
+			// if so, pop it from u.albumMedia and add it to tmpAlbumMedia
+			for i := 0; i < len(u.albumMedia); i++ {
+				if u.albumMedia[i].index >= albumIndex && u.albumMedia[i].index < albumIndex+u.opts.MaxAlbumSize && len(tmpAlbumMedia) <= u.opts.MaxAlbumSize {
+					tmpAlbumMedia = append(tmpAlbumMedia, u.albumMedia[i])
+					u.albumMedia = append(u.albumMedia[:i], u.albumMedia[i+1:]...)
+					i--
+				}
+			}
+
+			// if tmpAlbumMedia is full, send it
+			if len(tmpAlbumMedia) == u.opts.MaxAlbumSize {
+				if err := u.send(tmpAlbumMedia); err != nil {
+					// don't return error, just log it
+					fmt.Printf("Error: send uploaded files failed: %v\n", err)
+					return nil
+				}
+				tmpAlbumMedia = make([]mediaBinding, 0)
+				albumIndex += u.opts.MaxAlbumSize
+			}
 
 			return nil
 		})
@@ -111,33 +160,41 @@ func (u *Uploader) Upload(ctx context.Context) error {
 		canceled = true
 	}
 
-	// 即使被取消，也尝试发送已上传的文件
-	if len(u.albumMedia) > 0 {
-		// 创建新的 context 用于发送
-		sendCtx := context.Background()
-
-		// 排序已上传的媒体
-		sort.Slice(u.albumMedia, func(i, j int) bool {
-			return u.albumMedia[i].index < u.albumMedia[j].index
-		})
-
-		// 发送已上传的文件
-		if u.opts.AsAlbum {
-			if err := u.sendMultiMedia(sendCtx, u.albumMedia); err != nil {
-				return errors.Wrap(err, "send multi media")
-			}
-		} else {
-			for _, mb := range u.albumMedia {
-				if err := u.sendSingleMedia(sendCtx, mb); err != nil {
-					return errors.Wrap(err, "send single media")
-				}
-			}
-		}
+	// 发送不满一组的 tmpAlbumMedia
+	if err := u.send(tmpAlbumMedia); err != nil {
+		return errors.Wrap(err, "send uploaded files")
 	}
 
 	// 如果是用户取消，最后再返回取消错误
 	if canceled {
 		return errors.New("upload canceled by user")
+	}
+
+	return nil
+}
+
+func (u *Uploader) send(mbs []mediaBinding) error {
+	if len(mbs) > 0 {
+		// 创建新的 context 用于发送
+		sendCtx := context.Background()
+
+		// 排序已上传的媒体
+		sort.Slice(mbs, func(i, j int) bool {
+			return mbs[i].index < mbs[j].index
+		})
+
+		// 发送已上传的文件
+		if u.opts.AsAlbum {
+			if err := u.sendMultiMedia(sendCtx, mbs); err != nil {
+				return errors.Wrap(err, "send multi media")
+			}
+		} else {
+			for _, mb := range mbs {
+				if err := u.sendSingleMedia(sendCtx, mb); err != nil {
+					return errors.Wrap(err, "send single media")
+				}
+			}
+		}
 	}
 
 	return nil

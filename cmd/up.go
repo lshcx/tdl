@@ -41,7 +41,7 @@ func NewUpload() *cobra.Command {
 	cmd.Flags().StringVar(&opts.Caption.CaptionBody, "caption-body", "", "custom caption body(end with \\n)")
 	cmd.Flags().StringVar(&opts.Caption.CaptionFooter, "caption-footer", "", "custom caption footer")
 	cmd.Flags().Float64Var(&opts.MaxFileSize, "max-file-size", 2, "max file size(GB), if the file size is greater than this value, it will be split into multiple files")
-
+	cmd.Flags().StringVar(&opts.ThumbTime, "thumb-time", "00:00:01", "thumbnail time")
 	// completion and validation
 	_ = cmd.MarkFlagRequired(path)
 

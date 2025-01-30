@@ -18,6 +18,9 @@
 - send uploaded file as album when upload cancelled by user
 - fix video frame rate parsing bug
 
+#### 2025-01-30
+- add `-thumb-time` flag to set thumbnail time, default is `00:00:01`
+- When the sending conditions are met, the message will be sent immediately instead of waiting for all files to be uploaded.
 
 English | <a href="README_zh.md">简体中文</a>
 

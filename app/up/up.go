@@ -36,6 +36,7 @@ type Options struct {
 	Photo        bool
 	AsAlbum      bool
 	MaxAlbumSize int
+	ThumbTime    string
 	MaxFileSize  float64 // GB
 	Caption      Caption
 }
@@ -79,7 +80,7 @@ func Run(ctx context.Context, c *telegram.Client, kvd storage.Storage, opts Opti
 		Client:       pool.Default(ctx),
 		Threads:      viper.GetInt(consts.FlagThreads),
 		Limit:        viper.GetInt(consts.FlagLimit),
-		Iter:         newIter(files, to, opts.Photo, opts.Remove, viper.GetDuration(consts.FlagDelay)),
+		Iter:         newIter(files, to, opts.Photo, opts.Remove, viper.GetDuration(consts.FlagDelay), opts.ThumbTime),
 		Progress:     newProgress(upProgress),
 		AsAlbum:      opts.AsAlbum,
 		MaxAlbumSize: opts.MaxAlbumSize,
