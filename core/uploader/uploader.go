@@ -51,9 +51,8 @@ func (u *Uploader) Upload(ctx context.Context) error {
 	wg.SetLimit(u.opts.Limit)
 
 	u.albumMedia = make([]mediaBinding, 0)
-	tmpAlbumMedia := make([]mediaBinding, 0)
 	index := 0
-	albumIndex := 0
+	hasCaption := true
 
 	// 用于跟踪是否被用户取消
 	var canceled bool
@@ -85,59 +84,29 @@ func (u *Uploader) Upload(ctx context.Context) error {
 				return nil
 			}
 
-			if !u.opts.AsAlbum {
-				// send single media
-				if err := u.sendSingleMedia(wgctx, mediaBinding{
-					index: currentID,
-					elem:  currentElem,
-					media: media,
-				}); err != nil {
-					// don't return error, just log it
-					fmt.Printf("Error: send single media failed: %v\n", err)
-					return nil
-				}
-			}
-
 			u.mu.Lock()
 			defer u.mu.Unlock()
 
-			if currentID >= albumIndex && currentID < albumIndex+u.opts.MaxAlbumSize {
-				// if currentID is in the range from albumIndex to albumIndex+u.opts.MaxAlbumSize,
-				// add it to tmpAlbumMedia
-				tmpAlbumMedia = append(tmpAlbumMedia, mediaBinding{
-					index: currentID,
-					elem:  currentElem,
-					media: media,
-				})
-			} else {
-				// if currentID is not in the range from albumIndex to albumIndex+u.opts.MaxAlbumSize,
-				// add it to u.albumMedia
-				u.albumMedia = append(u.albumMedia, mediaBinding{
-					index: currentID,
-					elem:  currentElem,
-					media: media,
-				})
-			}
+			// insert media to u.albumMedia by index
+			u.albumMedia = append(u.albumMedia, mediaBinding{
+				index: currentID,
+				elem:  currentElem,
+				media: media,
+			})
+			sort.Slice(u.albumMedia, func(i, j int) bool {
+				return u.albumMedia[i].index < u.albumMedia[j].index
+			})
 
-			// check if item in u.albumMedia is in the range from albumIndex to albumIndex+u.opts.MaxAlbumSize
-			// if so, pop it from u.albumMedia and add it to tmpAlbumMedia
-			for i := 0; i < len(u.albumMedia); i++ {
-				if u.albumMedia[i].index >= albumIndex && u.albumMedia[i].index < albumIndex+u.opts.MaxAlbumSize && len(tmpAlbumMedia) < u.opts.MaxAlbumSize {
-					tmpAlbumMedia = append(tmpAlbumMedia, u.albumMedia[i])
-					u.albumMedia = append(u.albumMedia[:i], u.albumMedia[i+1:]...)
-					i--
+			// 如果前maxAlbumSize个元素的index是连续的，则取出前maxAlbumSize个元素
+			if len(u.albumMedia) >= u.opts.MaxAlbumSize && u.albumMedia[0].index+u.opts.MaxAlbumSize-1 == u.albumMedia[u.opts.MaxAlbumSize-1].index {
+				albumMedia := u.albumMedia[:u.opts.MaxAlbumSize]
+				u.albumMedia = u.albumMedia[u.opts.MaxAlbumSize:]
+				if err := u.send(albumMedia, hasCaption); err != nil {
+					return errors.Wrap(err, "send uploaded files")
 				}
-			}
-
-			// if tmpAlbumMedia is full, send it
-			if len(tmpAlbumMedia) == u.opts.MaxAlbumSize {
-				if err := u.send(tmpAlbumMedia); err != nil {
-					// don't return error, just log it
-					fmt.Printf("Error: send uploaded files failed: %v\n", err)
-					return nil
+				if hasCaption {
+					hasCaption = false
 				}
-				tmpAlbumMedia = make([]mediaBinding, 0)
-				albumIndex += u.opts.MaxAlbumSize
 			}
 
 			return nil
@@ -160,8 +129,8 @@ func (u *Uploader) Upload(ctx context.Context) error {
 		canceled = true
 	}
 
-	// 发送不满一组的 tmpAlbumMedia
-	if err := u.send(tmpAlbumMedia); err != nil {
+	// 发送已上传的文件
+	if err := u.send(u.albumMedia, hasCaption); err != nil {
 		return errors.Wrap(err, "send uploaded files")
 	}
 
@@ -173,7 +142,7 @@ func (u *Uploader) Upload(ctx context.Context) error {
 	return nil
 }
 
-func (u *Uploader) send(mbs []mediaBinding) error {
+func (u *Uploader) send(mbs []mediaBinding, hasCaption bool) error {
 	if len(mbs) > 0 {
 		// 创建新的 context 用于发送
 		sendCtx := context.Background()
@@ -185,7 +154,7 @@ func (u *Uploader) send(mbs []mediaBinding) error {
 
 		// 发送已上传的文件
 		if u.opts.AsAlbum {
-			if err := u.sendMultiMedia(sendCtx, mbs); err != nil {
+			if err := u.sendMultiMedia(sendCtx, mbs, hasCaption); err != nil {
 				return errors.Wrap(err, "send multi media")
 			}
 		} else {
@@ -337,9 +306,7 @@ func (u *Uploader) sendSingleMedia(ctx context.Context, mb mediaBinding) error {
 	return nil
 }
 
-func (u *Uploader) sendMultiMedia(ctx context.Context, mbs []mediaBinding) error {
-
-	hasCaption := true
+func (u *Uploader) sendMultiMedia(ctx context.Context, mbs []mediaBinding, hasCaption bool) error {
 	// build inputSingleMedia list
 	inputSingleMedias := make([]tg.InputSingleMedia, 0, len(mbs))
 	for _, mb := range mbs {
@@ -349,7 +316,6 @@ func (u *Uploader) sendMultiMedia(ctx context.Context, mbs []mediaBinding) error
 		}
 		if hasCaption {
 			single.Message = mb.elem.Caption()
-			hasCaption = false
 		}
 		single.SetFlags()
 		inputSingleMedias = append(inputSingleMedias, single)
