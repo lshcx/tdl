@@ -102,7 +102,9 @@ func (u *Uploader) Upload(ctx context.Context) error {
 				albumMedia := u.albumMedia[:u.opts.MaxAlbumSize]
 				u.albumMedia = u.albumMedia[u.opts.MaxAlbumSize:]
 				if err := u.send(albumMedia, hasCaption); err != nil {
-					return errors.Wrap(err, "send uploaded files")
+					// don't return error, just log it
+					fmt.Printf("Error: send uploaded files failed: %v\n", err)
+					return nil
 				}
 				if hasCaption {
 					hasCaption = false
