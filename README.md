@@ -23,6 +23,9 @@
 - When the sending conditions are met, the message will be sent immediately instead of waiting for all files to be uploaded.
 - fix video duration bug when flag `-as-album` is not set
 
+#### 2025-02-01
+- add `-force-mp4` flag to force to upload video as `video/mp4` even if the file is not a mp4 video
+
 English | <a href="README_zh.md">简体中文</a>
 
 <p>

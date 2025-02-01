@@ -25,7 +25,7 @@ type info struct {
 	videoDuration float64
 }
 
-func walk(ctx context.Context, paths, excludes []string) ([]*file, error) {
+func walk(ctx context.Context, paths, excludes []string, forceMp4 bool) ([]*file, error) {
 	files := make([]*file, 0)
 	excludesMap := map[string]struct{}{
 		consts.UploadThumbExt: {}, // ignore thumbnail files
@@ -47,7 +47,7 @@ func walk(ctx context.Context, paths, excludes []string) ([]*file, error) {
 				return nil
 			}
 
-			f, err := buildFile(ctx, path)
+			f, err := buildFile(ctx, path, forceMp4)
 			if err == nil && f != nil {
 				files = append(files, f)
 			} else {
@@ -65,7 +65,7 @@ func walk(ctx context.Context, paths, excludes []string) ([]*file, error) {
 	return files, nil
 }
 
-func buildFile(ctx context.Context, path string) (*file, error) {
+func buildFile(ctx context.Context, path string, forceMp4 bool) (*file, error) {
 	file := &file{file: path}
 	t := strings.TrimSuffix(path, filepath.Ext(path)) + consts.UploadThumbExt
 	file.thumb = t
@@ -85,6 +85,10 @@ func buildFile(ctx context.Context, path string) (*file, error) {
 
 	// if mime is `application/octet-stream`, and filename ends with `.ts`, then set mime to `video/mp2t`
 	if file.mime == "application/octet-stream" && strings.HasSuffix(path, ".ts") {
+		file.mime = "video/mp4"
+	}
+
+	if forceMp4 {
 		file.mime = "video/mp4"
 	}
 
@@ -187,7 +191,7 @@ func handleCaption(files []*file, asAlbum bool, optCaption Caption) error {
 	return nil
 }
 
-func filterFileSize(ctx context.Context, files []*file, maxFileSize float64, isRemove bool) []*file {
+func filterFileSize(ctx context.Context, files []*file, maxFileSize float64, isRemove bool, forceMp4 bool) []*file {
 	filteredFiles := make([]*file, 0)
 	maxSize := int64(maxFileSize * 1024 * 1024 * 1024)
 
@@ -242,7 +246,7 @@ func filterFileSize(ctx context.Context, files []*file, maxFileSize float64, isR
 
 		// build split files
 		for _, splitPath := range splitFiles {
-			f, err := buildFile(ctx, splitPath)
+			f, err := buildFile(ctx, splitPath, forceMp4)
 			if err != nil {
 				fmt.Printf("Warning: Skip file %s because of error: %s \n", splitPath, err)
 				continue

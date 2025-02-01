@@ -37,17 +37,18 @@ type Options struct {
 	AsAlbum      bool
 	MaxAlbumSize int
 	ThumbTime    string
+	ForceMp4     bool
 	MaxFileSize  float64 // GB
 	Caption      Caption
 }
 
 func Run(ctx context.Context, c *telegram.Client, kvd storage.Storage, opts Options) (rerr error) {
-	files, err := walk(ctx, opts.Paths, opts.Excludes)
+	files, err := walk(ctx, opts.Paths, opts.Excludes, opts.ForceMp4)
 	if err != nil {
 		return errors.Wrap(err, "walk")
 	}
 
-	files = filterFileSize(ctx, files, opts.MaxFileSize, opts.Remove)
+	files = filterFileSize(ctx, files, opts.MaxFileSize, opts.Remove, opts.ForceMp4)
 
 	if err := handleCaption(files, opts.AsAlbum, opts.Caption); err != nil {
 		return errors.Wrap(err, "handle caption")
