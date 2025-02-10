@@ -5,10 +5,12 @@ import (
 
 	"github.com/gotd/td/telegram"
 	"github.com/spf13/cobra"
+	"go.uber.org/zap"
 
 	"github.com/lshcx/tdl/app/up"
 	"github.com/lshcx/tdl/core/logctx"
 	"github.com/lshcx/tdl/core/storage"
+	"github.com/lshcx/tdl/pkg/logger"
 )
 
 func NewUpload() *cobra.Command {
@@ -20,7 +22,24 @@ func NewUpload() *cobra.Command {
 		Short:   "Upload anything to Telegram",
 		GroupID: groupTools.ID,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return tRun(cmd.Context(), func(ctx context.Context, c *telegram.Client, kvd storage.Storage) error {
+			logger.Init(logger.Options{
+				Level:      "info",
+				Filename:   "tdl.log",
+				MaxSize:    100,
+				MaxBackups: 5,
+				MaxAge:     30,
+				Console:    false,
+			})
+			defer logger.Sync()
+
+			return tRun(cmd.Context(), func(ctx context.Context, c *telegram.Client, kvd storage.Storage) (err error) {
+				defer func() {
+					if err != nil {
+						logger.Error("error occered during uploading: ", zap.Error(err))
+					} else {
+						logger.Info("uploading successfully")
+					}
+				}()
 				return up.Run(logctx.Named(ctx, "up"), c, kvd, opts)
 			})
 		},

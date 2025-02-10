@@ -11,10 +11,12 @@ import (
 	"github.com/go-faster/errors"
 	"github.com/gotd/td/telegram/uploader"
 	"github.com/gotd/td/tg"
+	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 
 	"github.com/lshcx/tdl/core/tmedia"
 	"github.com/lshcx/tdl/core/util/mediautil"
+	"github.com/lshcx/tdl/pkg/logger"
 )
 
 // MaxPartSize refer to https://core.telegram.org/api/files#uploading-files
@@ -81,6 +83,7 @@ func (u *Uploader) Upload(ctx context.Context) error {
 				}
 
 				// don't return error, just log it
+				logger.Error("Error: upload file", zap.String("file: ", currentElem.File().Name()), zap.Error(err))
 				fmt.Printf("Error: upload file %s failed: %v\n", currentElem.File().Name(), err)
 				return nil
 			}
@@ -104,6 +107,7 @@ func (u *Uploader) Upload(ctx context.Context) error {
 				u.albumMedia = u.albumMedia[u.opts.MaxAlbumSize:]
 				if err := u.send(albumMedia, hasCaption); err != nil {
 					// don't return error, just log it
+					logger.Error("Error: send uploaded files", zap.Error(err))
 					fmt.Printf("Error: send uploaded files failed: %v\n", err)
 					return nil
 				}
@@ -307,6 +311,10 @@ func (u *Uploader) sendSingleMedia(ctx context.Context, mb mediaBinding) error {
 		return errors.Wrap(err, "send single media")
 	}
 
+	if err := elem.DoRemove(); err != nil {
+		return errors.Wrap(err, "remove file")
+	}
+
 	return nil
 }
 
@@ -315,6 +323,7 @@ func (u *Uploader) sendMultiMedia(ctx context.Context, mbs []mediaBinding, hasCa
 	isFirst := true
 	// build inputSingleMedia list
 	inputSingleMedias := make([]tg.InputSingleMedia, 0, len(mbs))
+	elems := make([]Elem, 0, len(mbs))
 	for _, mb := range mbs {
 		single := tg.InputSingleMedia{
 			Media:    mb.media,
@@ -326,6 +335,7 @@ func (u *Uploader) sendMultiMedia(ctx context.Context, mbs []mediaBinding, hasCa
 		}
 		single.SetFlags()
 		inputSingleMedias = append(inputSingleMedias, single)
+		elems = append(elems, mb.elem)
 	}
 
 	// split into batches and send
@@ -342,6 +352,12 @@ func (u *Uploader) sendMultiMedia(ctx context.Context, mbs []mediaBinding, hasCa
 		_, err := u.opts.Client.MessagesSendMultiMedia(ctx, req)
 		if err != nil {
 			return errors.Wrap(err, "send multi media batch failed at index "+strconv.Itoa(i))
+		}
+	}
+
+	for _, elem := range elems {
+		if err := elem.DoRemove(); err != nil {
+			return errors.Wrap(err, "remove file")
 		}
 	}
 

@@ -2,7 +2,6 @@ package up
 
 import (
 	"fmt"
-	"os"
 	"sync"
 
 	"github.com/fatih/color"
@@ -65,20 +64,20 @@ func (p *progress) OnDone(elem uploader.Elem, err error) {
 		return
 	}
 
-	if e.remove {
-		if err := os.Remove(e.file.File.Name()); err != nil {
-			p.fail(t, elem, errors.Wrap(err, "remove file"))
-			return
-		}
+	// if e.remove {
+	// 	if err := os.Remove(e.file.File.Name()); err != nil {
+	// 		p.fail(t, elem, errors.Wrap(err, "remove file"))
+	// 		return
+	// 	}
 
-		// remove thumbnail
-		if e.thumb != "" {
-			if err := os.Remove(e.thumb); err != nil {
-				p.fail(t, elem, errors.Wrap(err, "remove thumb"))
-				return
-			}
-		}
-	}
+	// 	// remove thumbnail
+	// 	if e.thumb != "" {
+	// 		if err := os.Remove(e.thumb); err != nil {
+	// 			p.fail(t, elem, errors.Wrap(err, "remove thumb"))
+	// 			return
+	// 		}
+	// 	}
+	// }
 }
 
 func (p *progress) closeFile(e *iterElem) error {

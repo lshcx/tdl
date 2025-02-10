@@ -4,6 +4,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/go-faster/errors"
 	"github.com/gotd/td/telegram/peers"
 	"github.com/gotd/td/tg"
 
@@ -79,4 +80,21 @@ func (e *iterElem) Height() int {
 
 func (e *iterElem) Codec() string {
 	return e.codec
+}
+
+func (e *iterElem) DoRemove() error {
+	if e.remove {
+		if err := os.Remove(e.file.File.Name()); err != nil {
+			return errors.Wrap(err, "remove file")
+		}
+
+		// remove thumbnail
+		if e.thumb != "" {
+			if err := os.Remove(e.thumb); err != nil {
+				return errors.Wrap(err, "remove thumb")
+			}
+		}
+	}
+
+	return nil
 }

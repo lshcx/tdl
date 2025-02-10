@@ -26,6 +26,10 @@
 #### 2025-02-01
 - add `-force-mp4` flag to force to upload video as `video/mp4` even if the file is not a mp4 video
 
+#### 2025-02-10
+- add logger module
+- remove file only after send sucessfully
+
 English | <a href="README_zh.md">简体中文</a>
 
 <p>

@@ -43,6 +43,7 @@ type Options struct {
 }
 
 func Run(ctx context.Context, c *telegram.Client, kvd storage.Storage, opts Options) (rerr error) {
+
 	files, err := walk(ctx, opts.Paths, opts.Excludes, opts.ForceMp4)
 	if err != nil {
 		return errors.Wrap(err, "walk")

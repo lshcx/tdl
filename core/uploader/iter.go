@@ -30,4 +30,5 @@ type Elem interface {
 	Height() int
 	Codec() string
 	Caption() string
+	DoRemove() error
 }
