@@ -193,7 +193,7 @@ func handleCaption(files []*file, asAlbum bool, optCaption Caption) error {
 
 func filterFileSize(ctx context.Context, files []*file, maxFileSize float64, isRemove bool, forceMp4 bool) []*file {
 	filteredFiles := make([]*file, 0)
-	maxSize := int64(maxFileSize * 1024 * 1024 * 1024)
+	maxSize := int64(maxFileSize * 1000 * 1024 * 1024)
 
 	for _, f := range files {
 		if f.size == 0 {
