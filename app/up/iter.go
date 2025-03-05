@@ -2,6 +2,7 @@ package up
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"time"
 
@@ -79,7 +80,7 @@ func (i *iter) Next(ctx context.Context) bool {
 			if vp != nil {
 
 				// get thumb time and transform to float64
-				thumbTimeF64, err := time.ParseDuration(i.thumbTime)
+				thumbTimeF64, err := timeToFloat(i.thumbTime)
 				if err != nil {
 					thumbTimeF64 = 0
 				}
@@ -153,4 +154,21 @@ func (i *iter) validThumb(path string) bool {
 	}
 	defer f.Close()
 	return true
+}
+
+func timeToFloat(timeStr string) (float64, error) {
+	// 将格式从 "00:00:15" 转换为 "0h0m15s" 格式
+	h, m, s := 0, 0, 0
+	_, err := fmt.Sscanf(timeStr, "%02d:%02d:%02d", &h, &m, &s)
+	if err != nil {
+		return 0, err
+	}
+
+	durationStr := fmt.Sprintf("%dh%dm%ds", h, m, s)
+	duration, err := time.ParseDuration(durationStr)
+	if err != nil {
+		return 0, err
+	}
+
+	return duration.Seconds(), nil
 }
