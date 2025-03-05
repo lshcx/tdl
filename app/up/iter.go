@@ -77,8 +77,19 @@ func (i *iter) Next(ctx context.Context) bool {
 		if !i.validThumb(cur.thumb) {
 			vp := mediautil.GetVideoProcessor("")
 			if vp != nil {
-				// generate thumbnail with specified time
-				vp.GenerateThumbnail(ctx, i.thumbTime, cur.file, cur.thumb)
+
+				// get thumb time and transform to float64
+				thumbTimeF64, err := time.ParseDuration(i.thumbTime)
+				if err != nil {
+					thumbTimeF64 = 0
+				}
+
+				// generate thumbnail with specified time if the time is small than cur.info.Duration
+				if i.thumbTime != "" && cur.info != nil && cur.info.Duration < thumbTimeF64 {
+					vp.GenerateThumbnail(ctx, i.thumbTime, cur.file, cur.thumb)
+				} else {
+					vp.GenerateThumbnail(ctx, "00:00:00", cur.file, cur.thumb)
+				}
 			}
 		}
 
