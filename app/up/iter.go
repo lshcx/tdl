@@ -86,10 +86,10 @@ func (i *iter) Next(ctx context.Context) bool {
 				}
 
 				// generate thumbnail with specified time if the time is small than cur.info.Duration
-				if i.thumbTime != "" && cur.info != nil && cur.info.Duration < thumbTimeF64 {
+				if i.thumbTime != "" && cur.info != nil && cur.info.Duration > thumbTimeF64 {
 					vp.GenerateThumbnail(ctx, i.thumbTime, cur.file, cur.thumb)
 				} else {
-					vp.GenerateThumbnail(ctx, "00:00:00", cur.file, cur.thumb)
+					vp.GenerateThumbnail(ctx, "00:00:01", cur.file, cur.thumb)
 				}
 			}
 		}
