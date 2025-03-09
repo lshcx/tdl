@@ -62,6 +62,7 @@ func NewUpload() *cobra.Command {
 	cmd.Flags().Float64Var(&opts.MaxFileSize, "max-file-size", 2, "max file size(GB), if the file size is greater than this value, it will be split into multiple files")
 	cmd.Flags().StringVar(&opts.ThumbTime, "thumb-time", "00:00:01", "thumbnail time")
 	cmd.Flags().BoolVar(&opts.ForceMp4, "force-mp4", false, "force to convert video to mp4")
+	cmd.Flags().BoolVar(&opts.Caption.NoCaption, "no-caption", false, "no caption")
 
 	// completion and validation
 	_ = cmd.MarkFlagRequired(path)

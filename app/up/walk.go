@@ -130,6 +130,13 @@ func stats(files []*file) *info {
 
 func handleCaption(files []*file, asAlbum bool, optCaption Caption) error {
 
+	if optCaption.NoCaption {
+		for _, f := range files {
+			f.caption = ""
+		}
+		return nil
+	}
+
 	// build header
 	header := optCaption.CaptionHeader
 	footer := optCaption.CaptionFooter

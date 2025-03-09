@@ -23,6 +23,7 @@ import (
 )
 
 type Caption struct {
+	NoCaption     bool
 	CaptionHeader string
 	CaptionBody   string
 	CaptionFooter string
