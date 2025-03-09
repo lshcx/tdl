@@ -235,9 +235,10 @@ func (u *Uploader) uploadFile(ctx context.Context, elem Elem) (tg.InputMediaClas
 		videoAttributes.SetFlags()
 		attributes = append(attributes, videoAttributes)
 		doc := &tg.InputMediaUploadedDocument{
-			File:       f,
-			MimeType:   mime,
-			Attributes: attributes,
+			File:         f,
+			MimeType:     mime,
+			Attributes:   attributes,
+			NosoundVideo: true,
 		}
 		// set thumbnail if has
 		if thumbPath, ok := elem.Thumb(); ok {
