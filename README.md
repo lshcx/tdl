@@ -34,6 +34,9 @@
 - add `-no-caption` flag to disable caption
 - set nosoundvideo to true for all videos; see: [Fix MediaEmptyError error when sending some videos](https://github.com/LonamiWebs/Telethon/commit/ef4f9a962c6ef41b1b1905186a26c0695b1e4be2#diff-0ce168e1d5e6cf17ddbdf0b9d9d36bb5a8661e08a65a87276a3be39e7110125e)
 
+#### 2025-03-25
+- thumb file name is the same as the video file name(with extension) with extension '.thumb'
+
 English | <a href="README_zh.md">简体中文</a>
 
 <p>

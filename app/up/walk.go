@@ -67,7 +67,7 @@ func walk(ctx context.Context, paths, excludes []string, forceMp4 bool) ([]*file
 
 func buildFile(ctx context.Context, path string, forceMp4 bool) (*file, error) {
 	file := &file{file: path}
-	t := strings.TrimSuffix(path, filepath.Ext(path)) + consts.UploadThumbExt
+	t := path + consts.UploadThumbExt
 	file.thumb = t
 
 	size, err := os.Stat(path)
