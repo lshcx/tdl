@@ -182,8 +182,8 @@ func (p *VideoProcessor) SplitVideo(ctx context.Context, inputPath string, optio
 func (p *VideoProcessor) GenerateThumbnail(ctx context.Context, time, inputPath string, outputPath string) error {
 	args := []string{
 		"-hide_banner",
-		"-i", inputPath,
 		"-ss", time,
+		"-i", inputPath,
 		"-frames:v", "1",
 		"-f", "image2",
 		"-c:v", "mjpeg",
