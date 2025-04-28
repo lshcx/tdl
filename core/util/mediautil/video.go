@@ -152,7 +152,6 @@ func (p *VideoProcessor) SplitVideo(ctx context.Context, inputPath string, optio
 
 	args := []string{
 		"-hide_banner",
-		"-i", inputPath,
 		"-ss", fmt.Sprintf("%.3f", options.StartTime),
 	}
 
@@ -162,6 +161,7 @@ func (p *VideoProcessor) SplitVideo(ctx context.Context, inputPath string, optio
 
 	// 使用 copy 模式，保持原视频质量
 	args = append(args,
+		"-i", inputPath,
 		"-c", "copy",
 		"-avoid_negative_ts", "make_zero",
 		"-map", "0",
