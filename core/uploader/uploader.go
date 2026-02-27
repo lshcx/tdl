@@ -338,14 +338,14 @@ func (u *Uploader) sendMultiMedia(ctx context.Context, mbs []mediaBinding, hasCa
 		inputSingleMedias = append(inputSingleMedias, single)
 		elems = append(elems, mb.elem)
 
-		fmt.Printf("Build InputSingleMedia\n")
+		// fmt.Printf("Build InputSingleMedia\n")
 	}
 
 	// split into batches and send
 	maxAlbumSize := min(u.opts.MaxAlbumSize, 10)
-	fmt.Printf("maxAlbumSize: %d\n", maxAlbumSize)
+	// fmt.Printf("maxAlbumSize: %d\n", maxAlbumSize)
 	for i := 0; i < len(inputSingleMedias); i += maxAlbumSize {
-		fmt.Printf("Index: %d, total: %d\n", i, len(inputSingleMedias))
+		// fmt.Printf("Index: %d, total: %d\n", i, len(inputSingleMedias))
 		batch := inputSingleMedias[i:min(i+maxAlbumSize, len(inputSingleMedias))]
 		req := &tg.MessagesSendMultiMediaRequest{
 			Peer:       mbs[0].elem.To(),
