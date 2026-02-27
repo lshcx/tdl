@@ -337,11 +337,15 @@ func (u *Uploader) sendMultiMedia(ctx context.Context, mbs []mediaBinding, hasCa
 		single.SetFlags()
 		inputSingleMedias = append(inputSingleMedias, single)
 		elems = append(elems, mb.elem)
+
+		fmt.Printf("Build InputSingleMedia\n")
 	}
 
 	// split into batches and send
 	maxAlbumSize := min(u.opts.MaxAlbumSize, 10)
+	fmt.Printf("maxAlbumSize: %d\n", maxAlbumSize)
 	for i := 0; i < len(inputSingleMedias); i += maxAlbumSize {
+		fmt.Printf("Index: %d, total: %d\n", i, len(inputSingleMedias))
 		batch := inputSingleMedias[i:min(i+maxAlbumSize, len(inputSingleMedias))]
 		req := &tg.MessagesSendMultiMediaRequest{
 			Peer:       mbs[0].elem.To(),
@@ -354,8 +358,9 @@ func (u *Uploader) sendMultiMedia(ctx context.Context, mbs []mediaBinding, hasCa
 		if err != nil {
 			return errors.Wrap(err, "send multi media batch failed at index "+strconv.Itoa(i))
 		}
+		fmt.Printf("Success\n")
 	}
-
+	fmt.Printf("Remove\n")
 	for _, elem := range elems {
 		if err := elem.DoRemove(); err != nil {
 			return errors.Wrap(err, "remove file")
