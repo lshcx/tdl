@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"sort"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -14,9 +15,13 @@ import (
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 
+	"github.com/gotd/td/telegram/message/entity"
+	"github.com/gotd/td/telegram/message/html"
+	"github.com/gotd/td/telegram/message/styling"
 	"github.com/lshcx/tdl/core/tmedia"
 	"github.com/lshcx/tdl/core/util/mediautil"
 	"github.com/lshcx/tdl/pkg/logger"
+	"github.com/samber/lo"
 )
 
 // MaxPartSize refer to https://core.telegram.org/api/files#uploading-files
@@ -295,16 +300,30 @@ func (u *Uploader) uploadFile(ctx context.Context, elem Elem) (tg.InputMediaClas
 }
 
 func (u *Uploader) sendSingleMedia(ctx context.Context, mb mediaBinding) error {
-	media := mb.media
-	elem := mb.elem
+	// media := mb.media
+	// elem := mb.elem
+
+	single := tg.InputSingleMedia{
+		Media:    mb.media,
+		RandomID: time.Now().UnixNano(),
+	}
+	if err := u.formatCaption(&single, mb.elem.Caption()); err != nil {
+		return errors.Wrap(err, "format caption")
+	}
+	single.SetFlags()
+
+	// change single from tg.InputSingleMedia to InputMediaClass
 
 	req := &tg.MessagesSendMediaRequest{
-		Peer:     elem.To(),
-		Media:    media,
-		Message:  elem.Caption(),
+		Peer:     mb.elem.To(),
+		Media:    single.Media,
+		Message:  single.Message,
+		Entities: single.Entities,
+		// Message:  elem.Caption(),
 		RandomID: time.Now().UnixNano(),
 		Silent:   false,
 	}
+
 	req.SetFlags()
 
 	_, err := u.opts.Client.MessagesSendMedia(ctx, req)
@@ -312,7 +331,7 @@ func (u *Uploader) sendSingleMedia(ctx context.Context, mb mediaBinding) error {
 		return errors.Wrap(err, "send single media")
 	}
 
-	if err := elem.DoRemove(); err != nil {
+	if err := mb.elem.DoRemove(); err != nil {
 		return errors.Wrap(err, "remove file")
 	}
 
@@ -331,7 +350,10 @@ func (u *Uploader) sendMultiMedia(ctx context.Context, mbs []mediaBinding, hasCa
 			RandomID: time.Now().UnixNano(),
 		}
 		if hasCaption && isFirst {
-			single.Message = mb.elem.Caption()
+			// single.Message = mb.elem.Caption()
+			if err := u.formatCaption(&single, mb.elem.Caption()); err != nil {
+				return errors.Wrap(err, "format caption")
+			}
 			isFirst = false
 		}
 		single.SetFlags()
@@ -358,9 +380,9 @@ func (u *Uploader) sendMultiMedia(ctx context.Context, mbs []mediaBinding, hasCa
 		if err != nil {
 			return errors.Wrap(err, "send multi media batch failed at index "+strconv.Itoa(i))
 		}
-		fmt.Printf("Success\n")
+		// fmt.Printf("Success\n")
 	}
-	fmt.Printf("Remove\n")
+	// fmt.Printf("Remove\n")
 	for _, elem := range elems {
 		if err := elem.DoRemove(); err != nil {
 			return errors.Wrap(err, "remove file")
@@ -368,4 +390,34 @@ func (u *Uploader) sendMultiMedia(ctx context.Context, mbs []mediaBinding, hasCa
 	}
 
 	return nil
+}
+
+func (u *Uploader) formatCaption(media *tg.InputSingleMedia, caption string) error {
+
+	cb := &entity.Builder{}
+	if err := html.HTML(strings.NewReader(caption), cb, html.Options{
+		UserResolver:          nil,
+		DisableTelegramEscape: false,
+	}); err != nil {
+		return errors.Wrap(err, "parse caption HTML")
+	}
+
+	caption_opts := styling.Custom(func(eb *entity.Builder) error {
+		msg, entities := cb.Complete()
+		eb.Format(msg, lo.Map(entities, func(item tg.MessageEntityClass, _ int) entity.Formatter {
+			return func(_, _ int) tg.MessageEntityClass {
+				return item
+			}
+		})...)
+		return nil
+	})
+
+	tb := entity.Builder{}
+	if err := styling.Perform(&tb, caption_opts); err != nil {
+		return err
+	}
+	media.Message, media.Entities = tb.Complete()
+
+	return nil
+
 }
